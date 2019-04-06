@@ -20,7 +20,10 @@ class _MyAppState extends State<MyApp> {
         primarySwatch: Colors.brown,
         primaryColorDark: Colors.brown[900],
       ),
-      home: HomePage(),
+      home: DefaultTabController(
+        length: 4,
+        child: HomePage(),
+      ),
     );
   }
 }

@@ -9,10 +9,6 @@ class _MatriksPageState extends State<MatriksPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        onPressed: (){},
-        child: Text("Coba"),
-      ),
       body: ListView(
         children: <Widget>[
           new Card(

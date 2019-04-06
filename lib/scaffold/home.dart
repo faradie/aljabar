@@ -3,44 +3,36 @@ import 'package:matriks/additional/custom_popup_menu.dart';
 import 'package:matriks/scaffold/section1/determinan.dart';
 import 'package:matriks/scaffold/section1/inverse.dart';
 import 'package:matriks/scaffold/section1/matriks.dart';
+import 'package:matriks/scaffold/tabs/kuis/list_kuis.dart';
 
 class HomePage extends StatefulWidget {
   @override
   _HomePageState createState() => _HomePageState();
 }
 
-List<CustomPopupMenu> choices = <CustomPopupMenu>[
-  CustomPopupMenu(title: 'Poin', icon: Icons.book),
-  CustomPopupMenu(title: 'Score', icon: Icons.library_books),
-];
-
-class _HomePageState extends State<HomePage> {
-  CustomPopupMenu _selectedChoices = choices[0];
-
-  void _select(CustomPopupMenu choice) {
-    setState(() {
-      _selectedChoices = choice;
-    });
+class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
+  final List<MyTabs> _tabs = [
+    new MyTabs(
+        title: "Aljabar Linier", color: Colors.teal[200], icon: Icons.home),
+    new MyTabs(title: "Kuis", color: Colors.orange[200], icon: Icons.book),
+    new MyTabs(
+        title: "Riwayat", color: Colors.orange[200], icon: Icons.history),
+    new MyTabs(
+        title: "Profil", color: Colors.orange[200], icon: Icons.person_outline),
+  ];
+  MyTabs _myHandler;
+  TabController _controller;
+  void initState() {
+    super.initState();
+    _controller = new TabController(length: 4, vsync: this);
+    _myHandler = _tabs[0];
+    _controller.addListener(_handleSelected);
   }
 
-  popup() {
-    PopupMenuButton<CustomPopupMenu>(
-      elevation: 3.2,
-      initialValue: choices[1],
-      onCanceled: () {
-        print('You have not chossed anything');
-      },
-      tooltip: 'This is tooltip',
-      onSelected: _select,
-      itemBuilder: (BuildContext context) {
-        return choices.map((CustomPopupMenu choice) {
-          return PopupMenuItem<CustomPopupMenu>(
-            value: choice,
-            child: Text(choice.title),
-          );
-        }).toList();
-      },
-    );
+  void _handleSelected() {
+    setState(() {
+      _myHandler = _tabs[_controller.index];
+    });
   }
 
   @override
@@ -79,8 +71,10 @@ class _HomePageState extends State<HomePage> {
                   child: Text(
                     spacecrafts[index],
                     style: TextStyle(
-                        fontWeight: FontWeight.bold, color: Colors.brown,fontSize: 10.0),
-                        textAlign: TextAlign.center,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.brown,
+                        fontSize: 10.0),
+                    textAlign: TextAlign.center,
                   ),
                 ),
               ),
@@ -137,80 +131,65 @@ class _HomePageState extends State<HomePage> {
         );
       },
     );
+
     return new Scaffold(
-      appBar: AppBar(
-        title: const Text('Aljabar Linear'),
-        centerTitle: true,
-        actions: <Widget>[
-          PopupMenuButton<CustomPopupMenu>(
-            elevation: 3.2,
-            initialValue: choices[1],
-            onCanceled: () {
-              print('You have not chossed anything');
-            },
-            tooltip: 'This is tooltip',
-            onSelected: _select,
-            itemBuilder: (BuildContext context) {
-              return choices.map((CustomPopupMenu choice) {
-                return PopupMenuItem<CustomPopupMenu>(
-                  value: choice,
-                  child: Text(choice.title),
-                );
-              }).toList();
-            },
-          )
-        ],
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-      floatingActionButton: FloatingActionButton(
-        child: const Icon(Icons.add),
-        onPressed: () {},
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: <BottomNavigationBarItem>[
-          BottomNavigationBarItem(icon: Icon(Icons.home), title: Text('Home')),
-          BottomNavigationBarItem(icon: Icon(Icons.business), title: Text('Business')),
-          BottomNavigationBarItem(icon: Icon(Icons.school), title: Text('School')),
-        ],
-        fixedColor: Colors.deepPurple,
-      ),
-      body: new Container(
-        child: ListView(
-          children: <Widget>[
-            new Container(
-              color: Colors.blue,
-              child: myGridView,
+        appBar: AppBar(
+          title: Text(_myHandler.title.toUpperCase()),
+          centerTitle: true,
+        ),
+        bottomNavigationBar: new TabBar(
+          controller: _controller,
+          tabs: <Tab>[
+            new Tab(
+              icon: Icon(_tabs[0].icon),
             ),
-            new Container(
-              child: myGridView2,
+            new Tab(
+              icon: Icon(_tabs[1].icon),
+            ),
+            new Tab(
+              icon: Icon(_tabs[2].icon),
+            ),
+            new Tab(
+              icon: Icon(_tabs[3].icon),
             ),
           ],
+          labelColor: Colors.brown,
+          unselectedLabelColor: Colors.blue,
+          indicatorSize: TabBarIndicatorSize.label,
+          indicatorPadding: EdgeInsets.all(5.0),
+          indicatorColor: Colors.brown,
         ),
-      ),
-    );
+        body: TabBarView(
+          controller: _controller,
+          children: <Widget>[
+            new Container(
+              child: ListView(
+                children: <Widget>[
+                  new Container(
+                    color: Colors.blue,
+                    child: myGridView,
+                  ),
+                  new Container(
+                    child: myGridView2,
+                  ),
+                ],
+              ),
+            ),
+            new ListKuis(),
+            new Container(
+              color: Colors.lightGreen,
+            ),
+            new Container(
+              color: Colors.red,
+            ),
+          ],
+        ));
   }
 }
 
-class SelectedOption extends StatelessWidget {
-  final CustomPopupMenu choice;
-
-  SelectedOption({Key key, this.choice}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Icon(choice.icon, size: 140.0, color: Colors.white),
-            Text(
-              choice.title,
-              style: TextStyle(color: Colors.white, fontSize: 30),
-            )
-          ],
-        ),
-      ),
-    );
-  }
+class MyTabs {
+  final IconData icon;
+  final String title;
+  final Color color;
+  MyTabs({this.title, this.color, this.icon});
 }
